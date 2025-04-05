@@ -27,14 +27,14 @@ app.set('views', path.join(__dirname, 'views'));
 const dbEmployee = mysql.createConnection({
     host: "localhost",
     user: "root",
-    password: "Antony@1010",
+    password: "YOUR_PASSWORD",
     database: "employee"
 });
 
 const dbAuth = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: 'Antony@1010',
+    password: 'YOUR_PASSWORD',
     database: 'user_auth'
 });
 
