@@ -10,7 +10,6 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
@@ -22,19 +21,16 @@ app.use(session({
 }));
 app.use(flash());
 
-// Set view engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// MySQL Database Connection for Employee
 const dbEmployee = mysql.createConnection({
     host: "localhost",
     user: "root",
-    password: "Antony@1010", // Change this to your MySQL password
-    database: "employee"    // Ensure this database exists
+    password: "Antony@1010",
+    database: "employee"
 });
 
-// MySQL Database Connection for User Auth
 const dbAuth = mysql.createConnection({
     host: 'localhost',
     user: 'root',
@@ -42,7 +38,6 @@ const dbAuth = mysql.createConnection({
     database: 'user_auth'
 });
 
-// Connect to MySQL Databases
 dbEmployee.connect((err) => {
     if (err) {
         console.error("Employee Database connection failed:", err);
@@ -56,7 +51,6 @@ dbAuth.connect(err => {
     console.log('Connected to User Auth MySQL Database...');
 });
 
-// Authentication Middleware
 function isAuthenticated(req, res, next) {
     if (req.session.userId) {
         return next();
@@ -64,7 +58,6 @@ function isAuthenticated(req, res, next) {
     res.redirect('/');
 }
 
-// Routes for User Authentication
 app.get('/', (req, res) => {
     res.render('index', { message: req.flash('message'), error: req.flash('error') });
 });
@@ -105,7 +98,6 @@ app.post('/logout', (req, res) => {
     });
 });
 
-// Employee Management Routes
 app.post("/add", (req, res) => {
     const { name, email, position, salary, department, qualification, experience, address, phone, date_of_birth, date_of_joining } = req.body;
     const sql = "INSERT INTO employees (name, email, position, salary, department, qualification, experience, address, phone, date_of_birth, date_of_joining) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -117,7 +109,6 @@ app.post("/add", (req, res) => {
     });
 });
 
-// Check for existing email
 app.post("/check-email", (req, res) => {
     const { email, id } = req.body;
     const sql = "SELECT * FROM employees WHERE email = ? AND id != ?";
@@ -129,7 +120,6 @@ app.post("/check-email", (req, res) => {
     });
 });
 
-// Check for existing phone number
 app.post("/check-phone", (req, res) => {
     const { phone, id } = req.body;
     const sql = "SELECT * FROM employees WHERE phone = ? AND id != ?";
@@ -141,7 +131,6 @@ app.post("/check-phone", (req, res) => {
     });
 });
 
-// Edit an existing employee
 app.put("/edit/:id", (req, res) => {
     const { name, email, position, salary, department, qualification, experience, address, phone, date_of_birth, date_of_joining } = req.body;
     const { id } = req.params;
@@ -154,7 +143,6 @@ app.put("/edit/:id", (req, res) => {
     });
 });
 
-// Delete an employee
 app.delete("/delete/:id", (req, res) => {
     const { id } = req.params;
     const sql = "DELETE FROM employees WHERE id=?";
@@ -166,7 +154,6 @@ app.delete("/delete/:id", (req, res) => {
     });
 });
 
-// Fetch employee details by ID
 app.get("/details/:id", (req, res) => {
     const { id } = req.params;
     const sql = "SELECT * FROM employees WHERE id = ?";
@@ -175,14 +162,13 @@ app.get("/details/:id", (req, res) => {
             return res.status(500).send(err);
         }
         if (result.length > 0) {
-            res.json(result[0]); // Return the first result
+            res.json(result[0]);
         } else {
             res.status(404).send("Employee not found");
         }
     });
 });
 
-// Search for employees by name
 app.get("/search/:name", (req, res) => {
     const { name } = req.params;
     const sql = "SELECT * FROM employees WHERE name LIKE ?";
@@ -194,7 +180,6 @@ app.get("/search/:name", (req, res) => {
     });
 });
 
-// Display all employees
 app.get("/display", (req, res) => {
     const sql = "SELECT * FROM employees";
     dbEmployee.query(sql, (err, result) => {
@@ -205,7 +190,6 @@ app.get("/display", (req, res) => {
     });
 });
 
-// Start the server
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });

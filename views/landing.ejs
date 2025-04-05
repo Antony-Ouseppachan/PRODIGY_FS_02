@@ -37,7 +37,6 @@
         .logout:hover {
             background-color: #8a2be2;
         }
-
         table {
             width: 100%;
             margin: 20px auto;
@@ -46,77 +45,63 @@
             border-radius: 8px;
             box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
         }
-
         th, td {
             border: 1px solid #ddd;
             padding: 15px;
             text-align: center;
             font-weight: bold;
         }
-
         th {
             background-color: #34495e;
             color: white;
         }
-
         td {
             background-color: #ffffff;
             transition: background-color 0.3s;
         }
-
         td:hover {
             background-color: #f9f9f9;
         }
-
         input, button {
             padding: 10px;
             margin: 5px;
             border: none;
             border-radius: 5px;
         }
-
         input {
             width: 250px;
             border: 1px solid #bdc3c7;
             transition: border-color 0.3s;
         }
-
         input:focus {
             border-color: #27ae60;
             outline: none;
         }
-
         button {
             cursor: pointer;
             font-weight: bold;
             transition: background-color 0.3s, transform 0.2s;
         }
-
         button:hover {
             opacity: 0.8;
             transform: translateY(-2px);
         }
-
         .add-btn {
             background-color: #27ae60;
             color: white;
         }
-
         .edit-btn {
             background-color: #f39c12;
             color: white;
         }
-
         .delete-btn {
             background-color: #e74c3c;
             color: white;
         }
-
         .details-btn {
             background-color: #3498db;
             color: white;
         }
-
         #modal {
             display: none;
             position: fixed;
@@ -129,7 +114,6 @@
             box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
             width: 350px;
         }
-
         #detailsModal {
             display: none;
             position: fixed;
@@ -142,12 +126,10 @@
             box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
             width: auto;
         }
-
         #modal h3, #detailsModal h3 {
             margin-bottom: 15px;
             color: #2c3e50;
         }
-
         #modal input{
             display: block;
             width: 90%;
@@ -156,7 +138,6 @@
             border: 1px solid #bdc3c7;
             border-radius: 5px;
         }
-
         #detailsModal p {
             display: block;
             width: auto;
@@ -167,12 +148,10 @@
             text-align: left;
             font-weight:500;
         }
-
         #modal button, #detailsModal button {
             width: 100px;
             margin: 10px 5px;
         }
-
         #notFoundMessage {
             display: none;
             background: whitesmoke;
@@ -185,7 +164,6 @@
             margin-top: 10px;
             color: #e74c3c;
         }
-
         #successMessage {
             display: none;
             color: green;
@@ -207,7 +185,6 @@
     </form>
     <div class="time" id="currentTime"></div>
     
-
     <script>
         function updateTime() {
             const now = new Date();
@@ -264,268 +241,111 @@
     </div>
 
     <script>
-window.onload = function() {
-    fetchItems();
-    setMaxDateForDOB();
-};
+        window.onload = function() {
+            fetchItems();
+            setMaxDateForDOB();
+        };
 
-function setMaxDateForDOB() {
-    const today = new Date();
-    const minDate = new Date(today);
-    minDate.setFullYear(today.getFullYear() - 18); // Set to 18 years ago
-    const minDateString = minDate.toISOString().split('T')[0]; // Format as YYYY-MM-DD
-    document.getElementById("date_of_birth").setAttribute("max", minDateString);
-}
-
+        function setMaxDateForDOB() {
+            const today = new Date();
+            const minDate = new Date(today);
+            minDate.setFullYear(today.getFullYear() - 18);
+            const minDateString = minDate.toISOString().split('T')[0];
+            document.getElementById("date_of_birth").setAttribute("max", minDateString);
+        }
 
         function searchItems() {
-    const searchInput = document.getElementById("search").value.toLowerCase();
-    const tableRows = document.querySelectorAll("#employeeTable tr");
-    const notFoundMessage = document.getElementById("notFoundMessage");
-    let anyRowVisible = false;
+            const searchInput = document.getElementById("search").value.toLowerCase();
+            const tableRows = document.querySelectorAll("#employeeTable tr");
+            const notFoundMessage = document.getElementById("notFoundMessage");
+            let anyRowVisible = false;
 
-    tableRows.forEach(row => {
-        const nameCell = row.getElementsByTagName("td")[0]; // Get the first cell (Name)
-        let rowContainsSearchTerm = false;
+            tableRows.forEach(row => {
+                const nameCell = row.getElementsByTagName("td")[0];
+                let rowContainsSearchTerm = false;
 
-        if (nameCell) {
-            const cellText = nameCell.textContent || nameCell.innerText;
-            if (cellText.toLowerCase().includes(searchInput)) {
-                rowContainsSearchTerm = true;
+                if (nameCell) {
+                    const cellText = nameCell.textContent || nameCell.innerText;
+                    if (cellText.toLowerCase().includes(searchInput)) {
+                        rowContainsSearchTerm = true;
+                    }
+                }
+
+                if (rowContainsSearchTerm) {
+                    row.style.display = "";
+                    anyRowVisible = true;
+                } else {
+                    row.style.display = "none";
+                }
+            });
+
+            notFoundMessage.style.display = anyRowVisible ? "none" : "block";
+        }
+
+        async function fetchItems() {
+            try {
+                const res = await fetch("http://localhost:5000/display");
+                if (!res.ok) {
+                    throw new Error(`HTTP error! Status: ${res.status}`);
+                }
+                const data = await res.json();
+                const table = document.getElementById("employeeTable");
+                const notFoundMessage = document.getElementById("notFoundMessage");
+                table.innerHTML = "";
+
+                if (data.length === 0) {
+                    notFoundMessage.style.display = "block";
+                } else {
+                    notFoundMessage.style.display = "none";
+                    data.forEach(item => {
+                        const formattedDateOfBirth = new Date(item.date_of_birth).toISOString().split('T')[0];
+                        const formattedDateOfJoining = new Date(item.date_of_joining).toISOString().split('T')[0];
+
+                        table.innerHTML += `
+                            <tr>
+                                <td>${item.name}</td>
+                                <td>${item.email}</td>
+                                <td>${item.position}</td>
+                                <td>${item.department}</td>
+                                <td>${formattedDateOfJoining}</td>
+                                <td>
+                                    <button class="details-btn" onclick="showDetails(${item.id})">More Details</button>
+                                    <button class="edit-btn" onclick="editItem(${item.id}, '${item.name}', '${item.email}', '${item.position}', ${item.salary}, '${item.department}', '${item.qualification}', ${item.experience}, '${item.address}', '${item.phone}', '${formattedDateOfBirth}', '${formattedDateOfJoining}')">Edit</button>
+                                    <button class="delete-btn" onclick="deleteItem(${item.id})">Delete</button>
+                                </td>
+                            </tr>`;
+                    });
+                }
+            } catch (error) {
+                console.error("Error fetching items:", error);
             }
         }
 
-        if (rowContainsSearchTerm) {
-            row.style.display = ""; // Show the row
-            anyRowVisible = true;
-        } else {
-            row.style.display = "none"; // Hide the row
+        function showDetails(id) {
+            fetch(`http://localhost:5000/details/${id}`)
+                .then(response => response.json())
+                .then(data => {
+                    const dateOfBirth = new Date(data.date_of_birth).toLocaleDateString('en-CA');
+                    const dateOfJoining = new Date(data.date_of_joining).toLocaleDateString('en-CA');
+
+                    const detailsContent = `
+                        <strong>Name:</strong> ${data.name}<br>
+                        <strong>Email:</strong> ${data.email}<br>
+                        <strong>Position:</strong> ${data.position}<br>
+                        <strong>Salary:</strong> ₹${data.salary}<br>
+                        <strong>Department:</strong> ${data.department}<br>
+                        <strong>Qualification:</strong> ${data.qualification}<br>
+                        <strong>Experience:</strong> ${data.experience} years<br>
+                        <strong>Address:</strong> ${data.address}<br>
+                        <strong>Phone:</strong> ${data.phone}<br>
+                        <strong>Date of Birth:</strong> ${dateOfBirth}<br>
+                        <strong>Date of Joining:</strong> ${dateOfJoining}
+                    `;
+                    document.getElementById("detailsContent").innerHTML = detailsContent;
+                    document.getElementById("detailsModal").style.display = "block";
+                })
+                .catch(error => console.error("Error fetching details:", error));
         }
-    });
-
-    notFoundMessage.style.display = anyRowVisible ? "none" : "block"; // Show/hide not found message
-}
-
-async function fetchItems() {
-    try {
-        const res = await fetch("http://localhost:5000/display");
-        if (!res.ok) {
-            throw new Error(`HTTP error! Status: ${res.status}`);
-        }
-        const data = await res.json();
-        const table = document.getElementById("employeeTable");
-        const notFoundMessage = document.getElementById("notFoundMessage");
-        table.innerHTML = "";
-
-        if (data.length === 0) {
-            notFoundMessage.style.display = "block";
-        } else {
-            notFoundMessage.style.display = "none";
-            data.forEach(item => {
-                // Format the dates to YYYY-MM-DD
-                const formattedDateOfBirth = new Date(item.date_of_birth).toISOString().split('T')[0];
-                const formattedDateOfJoining = new Date(item.date_of_joining).toISOString().split('T')[0];
-
-                table.innerHTML += `
-                    <tr>
-                        <td>${item.name}</td>
-                        <td>${item.email}</td>
-                        <td>${item.position}</td>
-                        <td>${item.department}</td>
-                        <td>${formattedDateOfJoining}</td>
-                        <td>
-                            <button class="details-btn" onclick="showDetails(${item.id})">More Details</button>
-                            <button class="edit-btn" onclick="editItem(${item.id}, '${item.name}', '${item.email}', '${item.position}', ${item.salary}, '${item.department}', '${item.qualification}', ${item.experience}, '${item.address}', '${item.phone}', '${formattedDateOfBirth}', '${formattedDateOfJoining}')">Edit</button>
-                            <button class="delete-btn" onclick="deleteItem(${item.id})">Delete</button>
-                        </td>
-                    </tr>`;
-            });
-        }
-    } catch (error) {
-        console.error("Error fetching items:", error);
-    }
-}
-
-function showDetails(id) {
-    fetch(`http://localhost:5000/details/${id}`)
-        .then(response => response.json())
-        .then(data => {
-            // Format the dates
-            const dateOfBirth = new Date(data.date_of_birth).toLocaleDateString('en-CA');
-            const dateOfJoining = new Date(data.date_of_joining).toLocaleDateString('en-CA');
-
-            const detailsContent = `
-                <strong>Name:</strong> ${data.name}<br>
-                <strong>Email:</strong> ${data.email}<br>
-                <strong>Position:</strong> ${data.position}<br>
-                <strong>Salary:</strong> ₹${data.salary}<br>
-                <strong>Department:</strong> ${data.department}<br>
-                <strong>Qualification:</strong> ${data.qualification}<br>
-                <strong>Experience:</strong> ${data.experience} years<br>
-                <strong>Address:</strong> ${data.address}<br>
-                <strong>Phone:</strong> ${data.phone}<br>
-                <strong>Date of Birth:</strong> ${dateOfBirth}<br> <!-- Use formatted date -->
-                <strong>Date of Joining:</strong> ${dateOfJoining} <!-- Use formatted date -->
-            `;
-            document.getElementById("detailsContent").innerHTML = detailsContent;
-            document.getElementById("detailsModal").style.display = "block";
-        })
-        .catch(error => console.error("Error fetching details:", error));
-}
-
-        function closeDetailsModal() {
-            document.getElementById("detailsModal").style.display = "none";
-        }
-
-        async function saveItem() {
-    const id = document.getElementById("itemId").value;
-    const name = document.getElementById("name").value;
-    const email = document.getElementById("email").value;
-    const position = document.getElementById("position").value;
-    const salary = document.getElementById("salary").value;
-    const department = document.getElementById("department").value;
-    const qualification = document.getElementById("qualification").value;
-    const experience = document.getElementById("experience").value;
-    const address = document.getElementById("address").value;
-    const phone = document.getElementById("phone").value;
-    const date_of_birth = document.getElementById("date_of_birth").value;
-    const date_of_joining = document.getElementById("date_of_joining").value;
-
-    const itemData = { 
-        name, 
-        email, 
-        position, 
-        salary, 
-        department, 
-        qualification, 
-        experience, 
-        address, 
-        phone, 
-        date_of_birth, 
-        date_of_joining 
-    };
-
-    // Validate date of birth
-    const dob = new Date(date_of_birth);
-    const today = new Date();
-    const age = today.getFullYear() - dob.getFullYear();
-    const m = today.getMonth() - dob.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
-        age--;
-    }
-    if (age < 18) {
-        alert("Employee must 18 years old.");
-        return;
-    }
-
-    // Check for existing email
-    const emailCheckRes = await fetch("http://localhost:5000/check-email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, id })
-    });
-
-    if (emailCheckRes.ok) {
-        const emailCheckData = await emailCheckRes.json();
-        if (emailCheckData.exists) {
-            alert("Email already exists.");
-            return;
-        }
-    } else {
-        alert("Failed to check for existing email.");
-        return;
-    }
-
-    // Check for existing phone number
-    const phoneCheckRes = await fetch("http://localhost:5000/check-phone", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone, id })
-    });
-
-    if (phoneCheckRes.ok) {
-        const phoneCheckData = await phoneCheckRes.json();
-        if (phoneCheckData.exists) {
-            alert("Phone number already exists.");
-            return;
-        }
-    } else {
-        alert("Failed to check for existing phone number.");
-        return;
-    }
-
-    const url = id ? `http://localhost:5000/edit/${id}` : "http://localhost:5000/add";
-    const method = id ? "PUT" : "POST";
-
-    const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(itemData)
-    });
-
-    if (res.ok) {
-        closeModal();
-        fetchItems();
-        showSuccessMessage();
-    } else {
-        alert("Failed to save employee.");
-    }
-}
-
-        function showSuccessMessage() {
-            const successMessage = document.getElementById("successMessage");
-            successMessage.style.display = "block";
-            setTimeout(() => {
-                successMessage.style.display = "none";
-            }, 3000);
-        }
-
-        function editItem(id, name, email, position, salary, department, qualification, experience, address, phone, date_of_birth, date_of_joining) {
-    document.getElementById("modalTitle").innerText = "Edit Employee";
-    document.getElementById("modal").style.display = "block";
-    document.getElementById("itemId").value = id;
-    document.getElementById("name").value = name;
-    document.getElementById("email").value = email;
-    document.getElementById("position").value = position;
-    document.getElementById("salary").value = salary;
-    document.getElementById("department").value = department;
-    document.getElementById("qualification").value = qualification;
-    document.getElementById("experience").value = experience;
-    document.getElementById("address").value = address;
-    document.getElementById("phone").value = phone;
-
-    // Set the date fields to the correct values (ensure they are in YYYY-MM-DD format)
-    document.getElementById("date_of_birth").value = date_of_birth; // Should be in YYYY-MM-DD format
-    document.getElementById("date_of_joining").value = date_of_joining; // Should be in YYYY-MM-DD format
-}
-
-        function openModal() {
-            document.getElementById("modalTitle").innerText = "Add Employee";
-            document.getElementById("modal").style.display = "block";
-            document.getElementById("itemId").value = "";
-            document.getElementById("name").value = "";
-            document.getElementById("email").value = "";
-            document.getElementById("position").value = "";
-            document.getElementById("salary").value = "";
-            document.getElementById("department").value = "";
-            document.getElementById("qualification").value = "";
-            document.getElementById("experience").value = "";
-            document.getElementById("address").value = "";
-            document.getElementById("phone").value = "";
-            document.getElementById("date_of_birth").value = "";
-            document.getElementById("date_of_joining").value = "";
-        }
-
-        async function deleteItem(id) {
-            await fetch(`http://localhost:5000/delete/${id}`, { method: "DELETE" });
-            fetchItems();
-        }
-
-        function closeModal() {
-            document.getElementById("modal").style.display = "none";
-        }
-
-        window.onload = fetchItems;
     </script>
 </body>
 </html>
