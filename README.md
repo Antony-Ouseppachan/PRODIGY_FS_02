@@ -60,7 +60,7 @@ The Employee Management Web Application is a robust platform designed for admini
 
 ## Usage
 - Access the application through the browser.
-- Use the login page to authenticate as an administrator.
+- Use the login page to authenticate as an administrator[Note:You must have your credentials stored in the database to log in, as the website does not support registration for outsiders since it is not a commercial platform].
 - Perform CRUD operations on employee records from the landing page.
 
 ## License
